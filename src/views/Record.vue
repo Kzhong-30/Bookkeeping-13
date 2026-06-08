@@ -85,14 +85,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Microphone } from '@element-plus/icons-vue'
 import { db } from '../db'
 import type { Category } from '../types'
 
 const router = useRouter()
+const route = useRoute()
 const type = ref<'expense' | 'income'>('expense')
 const amount = ref('')
 const date = ref(new Date().toISOString().split('T')[0])
@@ -155,9 +156,19 @@ async function submitRecord() {
   }
 }
 
-onMounted(async () => {
+async function loadCategories() {
   categories.value = await db.categories.toArray()
-})
+}
+
+watch(
+  () => route.fullPath,
+  () => {
+    if (route.path === '/record') {
+      loadCategories()
+    }
+  },
+  { immediate: true }
+)
 </script>
 
 <style scoped>

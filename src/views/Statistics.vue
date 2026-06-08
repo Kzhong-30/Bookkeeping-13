@@ -24,10 +24,19 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import * as echarts from 'echarts'
+import * as echarts from 'echarts/core'
+import { PieChart, LineChart, BarChart } from 'echarts/charts'
+import {
+  TooltipComponent,
+  LegendComponent,
+  GridComponent
+} from 'echarts/components'
+import { CanvasRenderer } from 'echarts/renderers'
 import { db } from '../db'
 import { isEChartsTooltipParamArray } from '../utils'
 import type { Transaction, Category } from '../types'
+
+echarts.use([PieChart, LineChart, BarChart, TooltipComponent, LegendComponent, GridComponent, CanvasRenderer])
 
 const pieChartRef = ref<HTMLElement>()
 const lineChartRef = ref<HTMLElement>()
@@ -224,10 +233,14 @@ function initLineChart(transactions: Transaction[]) {
         data: incomeData,
         color: '#67c23a',
         areaStyle: {
-          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(103, 194, 58, 0.3)' },
-            { offset: 1, color: 'rgba(103, 194, 58, 0.05)' }
-          ])
+          color: {
+            type: 'linear' as const,
+            x: 0, y: 0, x2: 0, y2: 1,
+            colorStops: [
+              { offset: 0, color: 'rgba(103, 194, 58, 0.3)' },
+              { offset: 1, color: 'rgba(103, 194, 58, 0.05)' }
+            ]
+          }
         }
       },
       {
@@ -237,10 +250,14 @@ function initLineChart(transactions: Transaction[]) {
         data: expenseData,
         color: '#f56c6c',
         areaStyle: {
-          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(245, 108, 108, 0.3)' },
-            { offset: 1, color: 'rgba(245, 108, 108, 0.05)' }
-          ])
+          color: {
+            type: 'linear' as const,
+            x: 0, y: 0, x2: 0, y2: 1,
+            colorStops: [
+              { offset: 0, color: 'rgba(245, 108, 108, 0.3)' },
+              { offset: 1, color: 'rgba(245, 108, 108, 0.05)' }
+            ]
+          }
         }
       }
     ]
@@ -315,10 +332,14 @@ function initBarChart(transactions: Transaction[], categories: Category[]) {
         barWidth: '50%',
         itemStyle: {
           borderRadius: [0, 4, 4, 0],
-          color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
-            { offset: 0, color: '#667eea' },
-            { offset: 1, color: '#764ba2' }
-          ])
+          color: {
+            type: 'linear' as const,
+            x: 0, y: 0, x2: 1, y2: 0,
+            colorStops: [
+              { offset: 0, color: '#667eea' },
+              { offset: 1, color: '#764ba2' }
+            ]
+          }
         }
       }
     ]
@@ -332,22 +353,10 @@ function handleResize() {
 }
 
 const route = useRoute()
-let chartsInitialized = false
 
 onMounted(() => {
-  loadChartData()
-  chartsInitialized = true
   window.addEventListener('resize', handleResize)
 })
-
-watch(
-  () => route.fullPath,
-  () => {
-    if (route.path === '/statistics' && chartsInitialized) {
-      loadChartData()
-    }
-  }
-)
 
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
@@ -355,6 +364,16 @@ onUnmounted(() => {
   lineChart?.dispose()
   barChart?.dispose()
 })
+
+watch(
+  () => route.fullPath,
+  () => {
+    if (route.path === '/statistics') {
+      loadChartData()
+    }
+  },
+  { immediate: true }
+)
 </script>
 
 <style scoped>

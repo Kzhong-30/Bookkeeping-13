@@ -157,7 +157,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, reactive } from 'vue'
+import { ref, computed, watch, reactive } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { db } from '../db'
@@ -353,22 +353,16 @@ async function deleteCategory(id: number) {
 }
 
 const route = useRoute()
-let dataInitialized = false
-
-onMounted(() => {
-  loadYearStats()
-  loadCategories()
-  dataInitialized = true
-})
 
 watch(
   () => route.fullPath,
   () => {
-    if (route.path === '/mine' && dataInitialized) {
+    if (route.path === '/mine') {
       loadYearStats()
       loadCategories()
     }
-  }
+  },
+  { immediate: true }
 )
 </script>
 
