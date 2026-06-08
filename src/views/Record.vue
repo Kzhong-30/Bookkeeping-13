@@ -4,20 +4,14 @@
       <div
         class="tab"
         :class="{ active: type === 'expense' }"
-        @click="
-          type = 'expense'
-          selectedCategoryId = null
-        "
+        @click="switchType('expense')"
       >
         支出
       </div>
       <div
         class="tab"
         :class="{ active: type === 'income' }"
-        @click="
-          type = 'income'
-          selectedCategoryId = null
-        "
+        @click="switchType('income')"
       >
         收入
       </div>
@@ -114,6 +108,11 @@ const currentCategories = computed(() => {
 const canSubmit = computed(() => {
   return selectedCategoryId.value !== null && parseFloat(amount.value) > 0
 })
+
+function switchType(t: 'expense' | 'income') {
+  type.value = t
+  selectedCategoryId.value = null
+}
 
 function toggleVoiceInput() {
   isListening.value = !isListening.value

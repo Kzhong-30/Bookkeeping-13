@@ -53,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { Plus, Tickets } from '@element-plus/icons-vue'
 import { db } from '../db'
@@ -106,17 +106,14 @@ async function loadData() {
 
 const route = useRoute()
 
-onMounted(() => {
-  loadData()
-})
-
 watch(
   () => route.fullPath,
   () => {
     if (route.path === '/home') {
       loadData()
     }
-  }
+  },
+  { immediate: true }
 )
 </script>
 

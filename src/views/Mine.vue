@@ -353,16 +353,18 @@ async function deleteCategory(id: number) {
 }
 
 const route = useRoute()
+let dataInitialized = false
 
 onMounted(() => {
   loadYearStats()
   loadCategories()
+  dataInitialized = true
 })
 
 watch(
   () => route.fullPath,
   () => {
-    if (route.path === '/mine') {
+    if (route.path === '/mine' && dataInitialized) {
       loadYearStats()
       loadCategories()
     }

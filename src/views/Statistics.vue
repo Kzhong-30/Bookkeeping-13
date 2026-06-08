@@ -332,16 +332,18 @@ function handleResize() {
 }
 
 const route = useRoute()
+let chartsInitialized = false
 
 onMounted(() => {
   loadChartData()
+  chartsInitialized = true
   window.addEventListener('resize', handleResize)
 })
 
 watch(
   () => route.fullPath,
   () => {
-    if (route.path === '/statistics') {
+    if (route.path === '/statistics' && chartsInitialized) {
       loadChartData()
     }
   }
